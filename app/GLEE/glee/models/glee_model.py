@@ -23,6 +23,7 @@ from transformers import CLIPTokenizer, CLIPTextModel
 from .vos_utils import masks_to_boxes, FeatureFuser
 import numpy as np
 import math
+from pathlib import Path
 
 
 def rand_sample(x, max_len):
@@ -58,7 +59,18 @@ class GLEE_Model(nn.Module):
     Main class for mask classification semantic segmentation architectures.
     """
 
-    def __init__(self, cfg, matcher, device, video_info, contras_mean):
+    def __init__(
+        self,
+        cfg,
+        matcher,
+        device,
+        video_info,
+        contras_mean,
+        clip_pretrained_model_path=(
+            Path(__file__).parent.parent.parent.absolute()
+            / "GLEE/clip_vit_base_patch32"
+        ),
+    ):
         super().__init__()
         self.cfg = cfg
         self.matcher = matcher
@@ -66,9 +78,10 @@ class GLEE_Model(nn.Module):
         output_channels = [v for k, v in self.backbone._out_feature_channels.items()]
         self.sot_fuser = FeatureFuser(output_channels[-3:], 256)
 
-        self.tokenizer = CLIPTokenizer.from_pretrained("GLEE/clip_vit_base_patch32")
+        clip_pretrained_model_path = str(clip_pretrained_model_path)
+        self.tokenizer = CLIPTokenizer.from_pretrained(clip_pretrained_model_path)
         self.tokenizer.add_special_tokens({"cls_token": self.tokenizer.eos_token})
-        self.text_encoder = CLIPTextModel.from_pretrained("GLEE/clip_vit_base_patch32")
+        self.text_encoder = CLIPTextModel.from_pretrained(clip_pretrained_model_path)
         # self.text_encoder_teacher = CLIPTextModel.from_pretrained('GLEE/clip_vit_base_patch32')
         self.lang_encoder = None
         # for p in self.text_encoder_teacher.parameters():
