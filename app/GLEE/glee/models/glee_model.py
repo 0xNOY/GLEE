@@ -67,8 +67,7 @@ class GLEE_Model(nn.Module):
         video_info,
         contras_mean,
         clip_pretrained_model_path=(
-            Path(__file__).parent.parent.parent.absolute()
-            / "GLEE/clip_vit_base_patch32"
+            Path(__file__).parent.parent.parent.absolute() / "clip_vit_base_patch32"
         ),
     ):
         super().__init__()
